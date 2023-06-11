@@ -104,10 +104,10 @@ class _NewHomeState extends State<NewHome> {
                   onPressed: () {
                     _resetFilter();
                   },
-                  child: const Text('Reset Filter'),
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.red),
                   ),
+                  child: const Text('Reset'),
                 ),
               ],
             ),
