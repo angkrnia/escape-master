@@ -18,26 +18,50 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Card(
-          margin: const EdgeInsets.all(20.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _title(),
-                  const SizedBox(height: 20.0),
-                  _usernameInput(),
-                  const SizedBox(height: 20.0),
-                  _passwordInput(),
-                  const SizedBox(height: 20.0),
-                  _tombolLogin(),
-                ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("images/bg.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Welcome to Kantin Ashima",
+                style: TextStyle(
+                  fontSize: 30.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
+              const SizedBox(height: 20.0),
+              Card(
+                margin: const EdgeInsets.all(20.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _title(),
+                        const SizedBox(height: 20.0),
+                        _usernameInput(),
+                        const SizedBox(height: 20.0),
+                        _passwordInput(),
+                        const SizedBox(height: 20.0),
+                        _tombolLogin(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

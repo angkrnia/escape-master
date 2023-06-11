@@ -23,11 +23,12 @@ class App extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Kantin Ashima',
-      initialRoute: '/home2',
-      home: const NewHome(),
+      initialRoute: '/home',
+      // home: const NewHome(),
+      home: const HomeScreen(title: 'Kantin Ashima'),
       routes: {
         '/home2': (context) => const NewHome(),
-        // '/home': (context) => const HomeScreen(title: 'Kantin Ashima'),
+        '/home': (context) => const HomeScreen(title: 'Kantin Ashima'),
         '/barang': (context) => const BarangScreen(),
         '/laporan': (context) => const LaporanScreen(),
         '/settings': (context) => const SettingsScreen(),

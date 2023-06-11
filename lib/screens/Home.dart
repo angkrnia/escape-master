@@ -21,29 +21,24 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.green,
-              Colors.white,
-            ],
-            stops: [0.0, 0.5],
-          ),
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30.0),
+          image: DecorationImage(
+            image: AssetImage("images/bg.png"),
+            fit: BoxFit.cover,
           ),
         ),
-        child: GridView.count(
-          crossAxisCount: 2,
-          children: <Widget>[
-            menuItem(Icons.shopping_cart, 'Transaksi', '/transaksi'),
-            menuItem(Icons.restaurant_menu, 'Menu', '/barang'),
-            menuItem(Icons.category, 'Kategori', '/category'),
-            menuItem(Icons.person, 'User', '/user'),
-            menuItem(Icons.calendar_month, 'Laporan', '/laporan'),
-            menuItem(Icons.info, 'Info', '/info'),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: GridView.count(
+            crossAxisCount: 2,
+            children: <Widget>[
+              menuItem(Icons.shopping_cart, 'Transaksi', '/transaksi'),
+              menuItem(Icons.restaurant_menu, 'Menu', '/barang'),
+              menuItem(Icons.category, 'Kategori', '/category'),
+              menuItem(Icons.person, 'User', '/user'),
+              menuItem(Icons.calendar_month, 'Laporan', '/laporan'),
+              menuItem(Icons.info, 'Info', '/info'),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomAppBar(
