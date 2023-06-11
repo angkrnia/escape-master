@@ -43,18 +43,19 @@ class _LoginState extends State<Login> {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 40.0),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _title(),
-                        const SizedBox(height: 20.0),
+                        const SizedBox(height: 15.0),
                         _usernameInput(),
-                        const SizedBox(height: 20.0),
+                        const SizedBox(height: 10.0),
                         _passwordInput(),
-                        const SizedBox(height: 20.0),
+                        const SizedBox(height: 15.0),
                         _tombolLogin(),
                       ],
                     ),
@@ -85,24 +86,35 @@ class _LoginState extends State<Login> {
     return TextField(
       keyboardType: TextInputType.text,
       decoration: const InputDecoration(
-          labelText: 'Username',
-          icon: Icon(Icons.person, size: 35),
-          border: OutlineInputBorder()),
+        labelText: 'Username',
+        icon: Icon(Icons.person, size: 35),
+        border: OutlineInputBorder(),
+      ),
       controller: _usernameTextboxController,
     );
   }
 
+  bool _obsecureText = true;
+
   _passwordInput() {
     return TextField(
-      obscureText: true,
-      decoration: const InputDecoration(
-          labelText: 'Password',
-          icon: Icon(
-            Icons.lock,
-            size: 35,
-          ),
-          border: OutlineInputBorder()),
+      obscureText: _obsecureText,
       controller: _passwordTextboxController,
+      decoration: InputDecoration(
+        icon: const Icon(Icons.lock, size: 35),
+        labelText: 'Password',
+        border: const OutlineInputBorder(),
+        suffixIcon: IconButton(
+          onPressed: () {
+            setState(() {
+              _obsecureText = !_obsecureText;
+            });
+          },
+          icon: Icon(
+            _obsecureText ? Icons.visibility : Icons.visibility_off,
+          ),
+        ),
+      ),
     );
   }
 
