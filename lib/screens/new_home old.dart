@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'Invoice.dart';
 
 class NewHome extends StatefulWidget {
-  const NewHome({Key? key}) : super(key: key);
+  const NewHome({super.key});
 
   @override
   State<NewHome> createState() => _NewHomeState();
@@ -64,13 +62,12 @@ class _NewHomeState extends State<NewHome> {
   }
 
   void _navigateToPaymentPage() {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => PaymentPage(totalPrice: _totalPrice, selectedItems: _selectedItems),
-    ),
-  );
-}
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => PaymentPage(totalPrice: _totalPrice)),
+    );
+  }
 
   @override
   void initState() {
@@ -116,9 +113,8 @@ class _NewHomeState extends State<NewHome> {
             ),
           ),
           Expanded(
-            child: ListView.separated(
+            child: ListView.builder(
               itemCount: _filteredMenuItems.length,
-              separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
                 MenuItem item = _filteredMenuItems[index];
                 int quantity = _selectedItems.containsKey(item)
@@ -168,126 +164,19 @@ class MenuItem {
   MenuItem({required this.name, required this.price});
 }
 
-class PaymentPage extends StatefulWidget {
+class PaymentPage extends StatelessWidget {
   final int totalPrice;
-  final Map<MenuItem, int> selectedItems;
 
-  PaymentPage({Key? key, required this.totalPrice, required this.selectedItems})
-      : super(key: key);
-
-  @override
-  _PaymentPageState createState() => _PaymentPageState();
-}
-
-class _PaymentPageState extends State<PaymentPage> {
-  final TextEditingController _paymentController = TextEditingController();
-  String adminName = 'Administrator'; // Ganti dengan nama admin sesuai kebutuhan
-  String dateTime = DateFormat('dd MMM yyyy, HH:mm').format(DateTime.now()); // Format tanggal + jam sesuai kebutuhan
-
-  @override
-  void dispose() {
-    _paymentController.dispose();
-    super.dispose();
-  }
-  void _submitPayment() {
-    int paymentAmount = int.tryParse(_paymentController.text) ?? 0;
-    int changeAmount = paymentAmount - widget.totalPrice;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => InvoicePage(
-          namaKasir: adminName,
-          time: dateTime,
-          totalPrice: widget.totalPrice,
-          paymentAmount: paymentAmount,
-          changeAmount: changeAmount,
-          selectedItems: widget.selectedItems,
-        ),
-      ),
-    );
-  }
+  const PaymentPage({Key? key, required this.totalPrice}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Payment'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(adminName),
-                Text(dateTime),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.separated(
-              itemCount: widget.selectedItems.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                MenuItem item = widget.selectedItems.keys.elementAt(index);
-                int quantity = widget.selectedItems.values.elementAt(index);
-                int subtotal = item.price * quantity;
-
-                return ListTile(
-                  title: Text(item.name),
-                  subtitle: Text('Qty: $quantity'),
-                  trailing: Text('Rp. $subtotal'),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 20.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Total Harga', style: const TextStyle(fontSize: 16)),
-                Text('Rp. ${widget.totalPrice}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Bayar', style: const TextStyle( fontSize: 16)),
-                Container(
-                  height: 16,
-                  width: 60,
-                  child: TextField(
-                    controller: _paymentController,
-                    keyboardType: TextInputType.number,
-                    //decoration: InputDecoration(
-                    //  labelText: 'Enter Amount',
-                    //  border: OutlineInputBorder(),
-                    //),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12.0),
-          Center(
-            child: ElevatedButton(
-              onPressed: _submitPayment,
-              child: const Text('Submit'),
-            ),
-          ),
-          const SizedBox(height: 12.0),
-        ],
+      body: Center(
+        child: Text('Total Price: \$ $totalPrice'),
       ),
     );
   }

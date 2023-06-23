@@ -21,25 +21,69 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("images/bg.png"),
-              fit: BoxFit.cover,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(height: 14.0),
+            Text(
+              'Selamat Datang Administrator',
+              style: TextStyle(
+                fontSize: 14.0,
+                //fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          child: GridView.count(
-            crossAxisCount: 2,
-            children: <Widget>[
-              menuItem(Icons.shopping_cart, 'Transaksi', '/transaksi'),
-              menuItem(Icons.restaurant_menu, 'Menu', '/barang'),
-              menuItem(Icons.category, 'Kategori', '/category'),
-              menuItem(Icons.person, 'User', '/user'),
-              menuItem(Icons.calendar_month, 'Laporan', '/laporan'),
-              menuItem(Icons.info, 'Info', '/info'),
-            ],
-          ),
-        ),
+            SizedBox(height: 8.0),
+            Container(
+              padding: EdgeInsets.all(10.0),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2.0),
+                color: Colors.blue,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Transaksi Hari Ini',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                    ),),
+                    const SizedBox(height: 8),
+                  Text('Rp. 1.000.000',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32.0,
+                    ),),
+                    const SizedBox(height: 8),
+                ],
+                
+              ),
+            ),
+            SizedBox(height: 8.0),
+            Container(
+              decoration: const BoxDecoration(
+                // image: DecorationImage(
+                //   image: AssetImage("images/bg.png"),
+                //   fit: BoxFit.cover,
+                // ),
+              ),
+              child: GridView.count(
+                crossAxisCount: 2,
+                childAspectRatio: (3 / 1.5),
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                children: <Widget>[
+                  menuItem(Icons.shopping_cart, 'Transaksi', '/transaksi'),
+                  menuItem(Icons.restaurant_menu, 'Menu', '/barang'),
+                  menuItem(Icons.category, 'Kategori', '/category'),
+                  menuItem(Icons.person, 'User', '/user'),
+                  menuItem(Icons.calendar_month, 'Laporan', '/laporan'),
+                  menuItem(Icons.info, 'Info', '/info'),
+                ],
+              ),
+            ),
+          ],
+        )
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
@@ -67,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          Navigator.pushNamed(context, '/create');
+          Navigator.pushNamed(context, '/home2');
         },
       ),
     );
@@ -91,11 +135,12 @@ class _HomeScreenState extends State<HomeScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(icon),
             const SizedBox(height: 8),
+            Text(" "),
             Text(title),
           ],
         ),

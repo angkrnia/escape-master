@@ -4,6 +4,8 @@ import 'package:escape/models/TransaksiModel.dart';
 import 'package:flutter/material.dart';
 import '../models/TransaksiModel.dart';
 import '../models/TransaksiBarangModel.dart';
+import 'Invoice.dart';
+import 'new_home.dart';
 
 class TransaksiScreen extends StatefulWidget {
   const TransaksiScreen({super.key});
@@ -78,17 +80,28 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
                         )),
                       ],
                       onSelectChanged: (selected) {
-                        // insert your navigation function here and use the selected value returned by the function
-                        Navigator.pushNamed(
+                        String namaKasir = entry.value.kasir;
+                        int totalPrice = entry.value.total;
+                        String time = entry.value.jam;
+                        int paymentAmount = entry.value.bayar;
+                        int changeAmount = paymentAmount - totalPrice;
+                        MenuItem menuItem = MenuItem(name: 'Nasi Goreng', price: 20000);
+                        Map<MenuItem, int> selectedItems = {
+                          menuItem: 1
+                        };
+
+                        Navigator.push(
                           context,
-                          '/invoice',
-                          arguments: {
-                            'namaPembeli': entry.value.kasir,
-                            'totalHarga': entry.value.total,
-                            'bayar' : entry.value.bayar,
-                            'jam' : entry.value.jam,
-                            'listBarang': _listBarang,
-                          },
+                          MaterialPageRoute(
+                            builder: (context) => InvoicePage(
+                              namaKasir : namaKasir,
+                              time : time,
+                              totalPrice: totalPrice,
+                              paymentAmount: paymentAmount,
+                              changeAmount: changeAmount,
+                              selectedItems: selectedItems,
+                            ),
+                          ),
                         );
                       }
                     ),
@@ -123,7 +136,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          Navigator.pushNamed(context, '/create');
+          Navigator.pushNamed(context, '/home2');
         },
       ),
     );
