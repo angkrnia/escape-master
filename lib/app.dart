@@ -32,7 +32,7 @@ class App extends StatelessWidget {
         '/barang': (context) => const BarangScreen(),
         '/laporan': (context) => const LaporanScreen(),
         '/settings': (context) => const SettingsScreen(),
-        '/create': (context) => const PenjualanForm(),
+        // '/create': (context) => const PenjualanForm(),
         //'/invoice': (context) => const InvoiceScreen(),
         '/login': (context) => const Login(),
         '/transaksi': (context) => const TransaksiScreen(),

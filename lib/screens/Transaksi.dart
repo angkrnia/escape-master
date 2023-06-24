@@ -6,6 +6,8 @@ import '../models/TransaksiModel.dart';
 import '../models/TransaksiBarangModel.dart';
 import 'Invoice.dart';
 import 'new_home.dart';
+import '../models/menu_model.dart';
+import '../api/menu_service.dart';
 
 class TransaksiScreen extends StatefulWidget {
   const TransaksiScreen({super.key});
@@ -85,8 +87,8 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
                         String time = entry.value.jam;
                         int paymentAmount = entry.value.bayar;
                         int changeAmount = paymentAmount - totalPrice;
-                        MenuItem menuItem = MenuItem(name: 'Nasi Goreng', price: 20000);
-                        Map<MenuItem, int> selectedItems = {
+                        Menu menuItem = Menu(name: 'Nasi Goreng', price: 20000, category: 'Makanan', id: 1);
+                        Map<Menu, int> selectedItems = {
                           menuItem: 1
                         };
 

@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'new_home.dart';
+import '../models/menu_model.dart';
+import '../api/menu_service.dart';
 
 class InvoicePage extends StatelessWidget {
   final String namaKasir;
@@ -10,7 +12,7 @@ class InvoicePage extends StatelessWidget {
   final int totalPrice;
   final int paymentAmount;
   final int changeAmount;
-  final Map<MenuItem, int> selectedItems;
+  final Map<Menu, int> selectedItems;
 
   const InvoicePage({
     Key? key,
@@ -46,7 +48,7 @@ class InvoicePage extends StatelessWidget {
               itemCount: selectedItems.length,
               separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
-                MenuItem item = selectedItems.keys.elementAt(index);
+                Menu item = selectedItems.keys.elementAt(index);
                 int quantity = selectedItems.values.elementAt(index);
                 int subtotal = item.price * quantity;
 

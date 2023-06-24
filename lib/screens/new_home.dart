@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'Invoice.dart';
+import '../models/menu_model.dart';
+import '../api/menu_service.dart';
 
 class NewHome extends StatefulWidget {
   const NewHome({Key? key}) : super(key: key);
@@ -10,19 +12,29 @@ class NewHome extends StatefulWidget {
 }
 
 class _NewHomeState extends State<NewHome> {
-  final List<MenuItem> _menuItems = [
-    MenuItem(name: 'Nasi Goreng', price: 20000),
-    MenuItem(name: 'Mie Goreng', price: 18000),
-    MenuItem(name: 'Ayam Bakar', price: 25000),
-    MenuItem(name: 'Sate Ayam', price: 15000),
-    MenuItem(name: 'Ikan Bakar', price: 22000),
-    MenuItem(name: 'Soto Ayam', price: 12000),
-    MenuItem(name: 'Bakso', price: 10000),
-  ];
+  List<Menu> _menuItems = [];
 
-  final Map<MenuItem, int> _selectedItems = {};
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
-  List<MenuItem> _filteredMenuItems = [];
+  Future<void> fetchData() async {
+    try {
+      MenuService menuService = MenuService();
+      List<Menu> menuList = await menuService.getMenu();
+      setState(() {
+        _menuItems = menuList;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  final Map<Menu, int> _selectedItems = {};
+
+  List<Menu> _filteredMenuItems = [];
 
   void _resetFilter() {
     setState(() {
@@ -31,7 +43,7 @@ class _NewHomeState extends State<NewHome> {
     });
   }
 
-  List<MenuItem> _searchMenuItems(String query) {
+  List<Menu> _searchMenuItems(String query) {
     return _filteredMenuItems
         .where((item) => item.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
@@ -39,7 +51,7 @@ class _NewHomeState extends State<NewHome> {
 
   int _totalPrice = 0;
 
-  void _addToCart(MenuItem item) {
+  void _addToCart(Menu item) {
     setState(() {
       if (_selectedItems.containsKey(item)) {
         _selectedItems[item] = _selectedItems[item]! + 1;
@@ -50,7 +62,7 @@ class _NewHomeState extends State<NewHome> {
     });
   }
 
-  void _removeFromCart(MenuItem item) {
+  void _removeFromCart(Menu item) {
     setState(() {
       if (_selectedItems.containsKey(item)) {
         if (_selectedItems[item] == 1) {
@@ -73,13 +85,12 @@ class _NewHomeState extends State<NewHome> {
 }
 
   @override
-  void initState() {
-    super.initState();
-    _filteredMenuItems.addAll(_menuItems);
-  }
-
-  @override
   Widget build(BuildContext context) {
+
+    if(_menuItems.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Restaurant Menu'),
@@ -117,10 +128,10 @@ class _NewHomeState extends State<NewHome> {
           ),
           Expanded(
             child: ListView.separated(
-              itemCount: _filteredMenuItems.length,
+              itemCount: _menuItems.length,
               separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
-                MenuItem item = _filteredMenuItems[index];
+                Menu item = _menuItems[index];
                 int quantity = _selectedItems.containsKey(item)
                     ? _selectedItems[item]!
                     : 0;
@@ -161,16 +172,9 @@ class _NewHomeState extends State<NewHome> {
   }
 }
 
-class MenuItem {
-  final String name;
-  final int price;
-
-  MenuItem({required this.name, required this.price});
-}
-
 class PaymentPage extends StatefulWidget {
   final int totalPrice;
-  final Map<MenuItem, int> selectedItems;
+  final Map<Menu, int> selectedItems;
 
   PaymentPage({Key? key, required this.totalPrice, required this.selectedItems})
       : super(key: key);
@@ -189,6 +193,7 @@ class _PaymentPageState extends State<PaymentPage> {
     _paymentController.dispose();
     super.dispose();
   }
+
   void _submitPayment() {
     int paymentAmount = int.tryParse(_paymentController.text) ?? 0;
     int changeAmount = paymentAmount - widget.totalPrice;
@@ -210,7 +215,6 @@ class _PaymentPageState extends State<PaymentPage> {
 
   @override
   Widget build(BuildContext context) {
-    
 
     return Scaffold(
       appBar: AppBar(
@@ -234,7 +238,7 @@ class _PaymentPageState extends State<PaymentPage> {
               itemCount: widget.selectedItems.length,
               separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
-                MenuItem item = widget.selectedItems.keys.elementAt(index);
+                Menu item = widget.selectedItems.keys.elementAt(index);
                 int quantity = widget.selectedItems.values.elementAt(index);
                 int subtotal = item.price * quantity;
 
