@@ -10,13 +10,8 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
-  // List<String> _categories = [
-  //   'Makanan Pembuka',
-  //   'Makanan Utama',
-  //   'Makanan Penutup',
-  //   'Minuman',
-  // ];
   List<Category> _categories = [];
+  bool _isDeleting = false;
 
   @override
   void initState() {
@@ -36,6 +31,33 @@ class _CategoryScreenState extends State<CategoryScreen> {
     }
   }
 
+  void _showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Konfirmasi Penghapusan'),
+          content: Text('Anda yakin ingin menghapus item ini?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Batal'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Hapus'),
+              onPressed: () {
+                // Tambahkan logika penghapusan item di sini
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_categories.isEmpty) {
@@ -47,55 +69,25 @@ class _CategoryScreenState extends State<CategoryScreen> {
       appBar: AppBar(
         title: const Text("Kategori Makanan"),
       ),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              showCheckboxColumn: false,
-              columnSpacing: 16.0, // Jarak antara kolom
-              columns: const [
-                DataColumn(
-                  label: Text('No.'),
-                ),
-                DataColumn(
-                  label: Text('Nama'),
-                ),
-                DataColumn(
-                  label: Text('Aksi'),
-                ),
-              ],
-              rows: _categories
-                  .asMap()
-                  .entries
-                  .map((entry) => DataRow(
-                      cells: [
-                        DataCell(Text('${entry.key + 1}')),
-                        DataCell(Text(entry.value.name)),
-                        DataCell(IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            setState(() {
-                              _categories.removeAt(entry.key);
-                            });
-                          },
-                        )),
-                      ],
-                      // onSelectChanged: (selected) {
-                      //   // insert your navigation function here and use the selected value returned by the function
-                      //   //Navigator.pushNamed(context, '/home');
-                      //   Navigator.of(context).push(MaterialPageRoute(
-                      //     builder: (context) => UserDetail(
-                      //     id: entry.value.id,
-                      //     nama: entry.value.name,
-                      //     )));
-                      // }
-                    ),
-                  )
-                  .toList(),
+      body: ListView.builder(
+        itemCount: _categories.length,
+        itemBuilder: (BuildContext context, int index) {
+          final category = _categories[index];
+
+          return ListTile(
+            leading: const Icon(Icons.category_outlined),
+            title: Text(category.name),
+            trailing: IconButton(
+              icon: Icon(Icons.delete), // Ikon hapus di sebelah kanan
+              onPressed: () {
+                setState(() {
+                  _isDeleting = true;
+                });
+                _showDeleteConfirmationDialog();
+              },
             ),
-          ),
-        ],
+          );
+        },
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),

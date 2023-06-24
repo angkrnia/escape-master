@@ -1,4 +1,8 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:escape/models/category_model.dart';
+import '../api/category_service.dart';
 import 'package:escape/screens/Barang_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,26 +16,64 @@ class BarangForm extends StatefulWidget {
 }
 
 class _BarangFormState extends State<BarangForm> {
-  final _NamaBarangTextboxController = TextEditingController();
-  final _KategoriTextboxController = TextEditingController();
-  final _HargaTextboxController = TextEditingController();
-  XFile? _image;
+  List<Category> _categories = [];
+  TextEditingController _menuNameController = TextEditingController();
+  TextEditingController _menuPriceController = TextEditingController();
+  int _categoryId = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    try {
+      CategoryService categoryService = CategoryService();
+      List<Category> categoryList = await categoryService.getMenu();
+      setState(() {
+        _categories = categoryList;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Barang'),
+        title: const Text('Tambah Menu Baru'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
             _textboxNamaBarang(),
-            _textboxKategori(),
+            SizedBox(height: 16.0),
             _textboxHarga(),
-            _tombolUploadFoto(),
-            _tombolSimpan(),
+            SizedBox(height: 16.0),
+            DropdownButtonFormField<int>(
+              value: _categories.length > 0 ? _categories[0].id : null,
+              items: _categories.map((Category category) {
+                return DropdownMenuItem<int>(
+                  value: category.id,
+                  child: Text(category.name),
+                );
+              }).toList(),
+              onChanged: (int? value) {
+                setState(() {
+                  _categoryId = value!;
+                });
+              },
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                submitMenu();
+              },
+              child: Text('Submit'),
+            ),
           ],
         ),
       ),
@@ -42,15 +84,7 @@ class _BarangFormState extends State<BarangForm> {
     return TextField(
       decoration: const InputDecoration(
           labelText: "Nama Menu", contentPadding: EdgeInsets.all(12)),
-      controller: _NamaBarangTextboxController,
-    );
-  }
-
-  _textboxKategori() {
-    return TextField(
-      decoration: const InputDecoration(
-          labelText: "Kategori", contentPadding: EdgeInsets.all(12)),
-      controller: _KategoriTextboxController,
+      controller: _menuNameController,
     );
   }
 
@@ -59,80 +93,22 @@ class _BarangFormState extends State<BarangForm> {
       decoration: const InputDecoration(
           labelText: "Harga", contentPadding: EdgeInsets.all(12)),
       keyboardType: TextInputType.number,
-      controller: _HargaTextboxController,
+      controller: _menuPriceController,
     );
   }
 
-  _tombolSimpan() {
-    return ElevatedButton(
-        onPressed: () {
-          if (_NamaBarangTextboxController.text.isEmpty ||
-              _KategoriTextboxController.text.isEmpty ||
-              _HargaTextboxController.text.isEmpty) {
-            Fluttertoast.showToast(
-                msg: "Data belum lengkap!",
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.TOP,
-                backgroundColor: Colors.red,
-                textColor: Colors.white);
-            return;
-          }
+  Future<void> submitMenu() async {
+    final url = Uri.parse('https://calm-red-dove-fez.cyclic.app/menu');
+    final response = await http.post(url, body: {
+      'name': _menuNameController.text,
+      'price': _menuPriceController.text,
+      'category_id': _categoryId.toString(),
+    });
 
-          if (_NamaBarangTextboxController.text.length < 3) {
-            Fluttertoast.showToast(
-                msg: "Nama Barang minimal 3 karakter",
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.TOP,
-                backgroundColor: Colors.red,
-                textColor: Colors.white);
-            return;
-          }
-
-          String NamaBarang = _NamaBarangTextboxController.text;
-          String Kategori = _KategoriTextboxController.text;
-          int Harga = int.parse(_HargaTextboxController.text);
-
-          // pindah ke halaman Barang Detail dan mengirim data
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => BarangDetail(
-                    Nama: NamaBarang,
-                    Kategori: NamaBarang,
-                    Harga: Harga,
-                  )));
-        },
-        child: const Text('Simpan'));
-  }
-
-  _tombolUploadFoto() {
-    final _picker = ImagePicker();
-    XFile? _image;
-
-    void _getImage() async {
-      final pickedFile = await _picker.pickImage(
-          source: ImageSource.camera); // Mengambil gambar dari galeri
-      // final pickedFile = await _picker.pickImage(source: ImageSource.camera); // Mengambil gambar dari kamera
-      setState(() {
-        _image = pickedFile;
-      });
+    if (response.statusCode == 201) {
+      print("berhasil");
+    } else {
+      print("gagal");
     }
-
-    return Column(
-      children: [
-        ElevatedButton(
-          onPressed: _getImage,
-          child: Text('Gambar'),
-        ),
-        if (_image != null)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Image.file(File(_image!.path)),
-                Text('Foto yang sudah diupload'),
-              ],
-            ),
-          ),
-      ],
-    );
   }
 }

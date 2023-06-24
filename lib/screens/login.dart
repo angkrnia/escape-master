@@ -143,38 +143,45 @@ class _LoginState extends State<Login> {
     return () {
       String username = _usernameTextboxController.text;
       String password = _passwordTextboxController.text;
-      if (username == "admin" && password == "admin") {
-        // Navigator.pushNamed(context, '/newhome');
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const App()),
-          (route) => false,
-        );
-        Fluttertoast.showToast(
-            msg: "Login sukses",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.green,
-            textColor: Colors.white);
-      } else {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: const Text("Kesalahan Autentikasi"),
-                  content: const Text("username atau Password Salah"),
-                  actions: <Widget>[
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          child: const Text("OK"),
-                        ))
-                  ],
-                ));
-        return;
-      }
+      // ONLY ON DEVELOPEMENT
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const App()),
+        (route) => false,
+      );
+      // END ONLY ON DEVELOPEMENT
+      // if (username == "admin" && password == "admin") {
+      //   // Navigator.pushNamed(context, '/newhome');
+      //   Navigator.pushAndRemoveUntil(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => const App()),
+      //     (route) => false,
+      //   );
+      //   Fluttertoast.showToast(
+      //       msg: "Login sukses",
+      //       toastLength: Toast.LENGTH_LONG,
+      //       gravity: ToastGravity.TOP,
+      //       backgroundColor: Colors.green,
+      //       textColor: Colors.white);
+      // } else {
+      //   showDialog(
+      //       context: context,
+      //       builder: (context) => AlertDialog(
+      //             title: const Text("Kesalahan Autentikasi"),
+      //             content: const Text("username atau Password Salah"),
+      //             actions: <Widget>[
+      //               TextButton(
+      //                   onPressed: () {
+      //                     Navigator.of(context).pop();
+      //                   },
+      //                   child: Container(
+      //                     padding: const EdgeInsets.all(14),
+      //                     child: const Text("OK"),
+      //                   ))
+      //             ],
+      //           ));
+      //   return;
+      // }
     };
   }
 }
