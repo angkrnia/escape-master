@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'screens/Home.dart';
-import 'screens/Barang.dart';
+import 'screens/menu_screen.dart';
 import 'screens/Laporan.dart';
 import 'screens/Settings.dart';
 import 'screens/FormTambah.dart';
@@ -29,11 +29,11 @@ class App extends StatelessWidget {
       routes: {
         '/home2': (context) => const NewHome(),
         '/home': (context) => const HomeScreen(title: 'Kantin Ashima'),
-        '/barang': (context) => const BarangScreen(),
+        '/barang': (context) => const MenuScreen(),
         '/laporan': (context) => const LaporanScreen(),
         '/settings': (context) => const SettingsScreen(),
-        '/create': (context) => const PenjualanForm(),
-        '/invoice': (context) => const InvoiceScreen(),
+        // '/create': (context) => const PenjualanForm(),
+        //'/invoice': (context) => const InvoiceScreen(),
         '/login': (context) => const Login(),
         '/transaksi': (context) => const TransaksiScreen(),
         '/user': (context) => const UserScreen(),

@@ -4,6 +4,13 @@ import 'package:escape/models/TransaksiModel.dart';
 import 'package:flutter/material.dart';
 import '../models/TransaksiModel.dart';
 import '../models/TransaksiBarangModel.dart';
+import 'Invoice.dart';
+import 'new_home.dart';
+import '../models/menu_model.dart';
+import '../api/menu_service.dart';
+import 'package:http/http.dart' as http;
+import '../helpers/format_angka.dart';
+import 'dart:convert';
 
 class TransaksiScreen extends StatefulWidget {
   const TransaksiScreen({super.key});
@@ -13,87 +20,140 @@ class TransaksiScreen extends StatefulWidget {
 }
 
 class _TransaksiScreenState extends State<TransaksiScreen> {
-  final List<Transaksi> _daftarTransaksi = [
-    Transaksi(kasir: 'Administrator', total: 32000, bayar: 50000, kembali: 18000, jam: '2023-05-19 8:40:23'),
-    Transaksi(kasir: 'Unggul P', total: 13000, bayar: 15000, kembali: 2000, jam: '2023-05-19 9:50:23'),
-    Transaksi(kasir: 'Unggul P', total: 30000, bayar: 50000, kembali: 20000, jam: '2023-05-20 17:00:23'),
-    Transaksi(kasir: 'Angga K', total: 5000, bayar: 100000, kembali: 95000, jam: '2023-05-21 8:22:23'),
-    Transaksi(kasir: 'Angga K', total: 2000, bayar: 50000, kembali: 48000, jam: '2023-05-21 21:40:23'),
-  ];
-  final _listBarang = <TransaksiBarang>[];
+  List<Map<String, dynamic>> _daftarTransaksi = [];
+  List<Map<String, dynamic>> _listBarang = [];
+
+  Future<void> getOrders() async {
+    final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/orders');
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        final result = jsonResponse['data']['orders'];
+        print(result);
+        if (result != null) {
+          setState(() {
+            _daftarTransaksi = List<Map<String, dynamic>>.from(result);
+          });
+        } else {
+          throw Exception("API response does not contain 'orders' data");
+        }
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  @override
+  initState() {
+    super.initState();
+    getOrders();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_daftarTransaksi.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Daftar Transaksi"),
       ),
       body: Column(
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              showCheckboxColumn: false,
-              columnSpacing: 16.0, // Jarak antara kolom
-              columns: const [
-                DataColumn(
-                  label: Text('No.'),
-                ),
-                DataColumn(
-                  label: Text('Kasir'),
-                ),
-                DataColumn(
-                  label: Text('Jam Transaksi'),
-                ),
-                DataColumn(
-                  label: Text('Total Harga'),
-                ),
-                DataColumn(
-                  label: Text('Bayar'),
-                ),
-                DataColumn(
-                  label: Text('Kembali'),
-                ),
-                DataColumn(
-                  label: Text('Aksi'),
-                ),
-              ],
-              rows: _daftarTransaksi
-                  .asMap()
-                  .entries
-                  .map((entry) => DataRow(
-                      cells: [
-                        DataCell(Text('${entry.key + 1}')),
-                        DataCell(Text(entry.value.kasir)),
-                        DataCell(Text(entry.value.jam)),
-                        DataCell(Text(entry.value.total.toString())),
-                        DataCell(Text(entry.value.bayar.toString())),
-                        DataCell(Text(entry.value.kembali.toString())),
-                        DataCell(IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            setState(() {
-                              _daftarTransaksi.removeAt(entry.key);
-                            });
-                          },
-                        )),
-                      ],
-                      onSelectChanged: (selected) {
-                        // insert your navigation function here and use the selected value returned by the function
-                        Navigator.pushNamed(
-                          context,
-                          '/invoice',
-                          arguments: {
-                            'namaPembeli': entry.value.kasir,
-                            'totalHarga': entry.value.total,
-                            'bayar' : entry.value.bayar,
-                            'jam' : entry.value.jam,
-                            'listBarang': _listBarang,
-                          },
-                        );
-                      }
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: DataTable(
+                  showCheckboxColumn: false,
+                  columnSpacing: 16.0,
+                  columns: const [
+                    DataColumn(
+                      label: Text('Invoice No'),
                     ),
-                  )
-                  .toList(),
+                    DataColumn(
+                      label: Text('Kasir'),
+                    ),
+                    DataColumn(
+                      label: Text('Jam Transaksi'),
+                    ),
+                    DataColumn(
+                      label: Text('Total Harga'),
+                    ),
+                    DataColumn(
+                      label: Text('Bayar'),
+                    ),
+                    DataColumn(
+                      label: Text('Kembali'),
+                    ),
+                    DataColumn(
+                      label: Text('Aksi'),
+                    ),
+                  ],
+                  rows: _daftarTransaksi.map<DataRow>(
+                    (entry) {
+                      final dateTime = DateTime.parse(entry['order_date']);
+                      final formattedDate =
+                          '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(entry['id'].toString())),
+                          DataCell(Text(entry['created_by'].toString())),
+                          DataCell(Text(formattedDate)),
+                          DataCell(Text(formatRupiah(entry['total_price']))),
+                          DataCell(Text(formatRupiah(entry['total_payment']))),
+                          DataCell(Text(
+                              (entry['total_payment'] - entry['total_price'])
+                                  .toString())),
+                          DataCell(
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                setState(() {
+                                  _daftarTransaksi.remove(entry);
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                        onSelectChanged: (selected) {
+                          String namaKasir = entry['kasir'].toString();
+                          String time = entry['jam'].toString();
+                          int totalPrice = entry['total'];
+                          int paymentAmount = entry['bayar'];
+                          int changeAmount = paymentAmount - totalPrice;
+                          Menu menuItem = Menu(
+                            name: 'Nasi Goreng',
+                            price: 20000,
+                            category: 'Makanan',
+                            id: 1,
+                          );
+                          Map<Menu, int> selectedItems = {menuItem: 1};
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InvoicePage(
+                                namaKasir: namaKasir,
+                                time: time,
+                                totalPrice: totalPrice,
+                                paymentAmount: paymentAmount,
+                                changeAmount: changeAmount,
+                                selectedItems: selectedItems,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ).toList(),
+                ),
+              ),
             ),
           ),
         ],
@@ -123,7 +183,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          Navigator.pushNamed(context, '/create');
+          Navigator.pushNamed(context, '/home2');
         },
       ),
     );
