@@ -27,7 +27,7 @@ class App extends StatelessWidget {
       // home: const NewHome(),
       home: const HomeScreen(title: 'Kantin Ashima'),
       routes: {
-        // '/home2': (context) => const NewHome(),
+        '/home2': (context) => const NewHome(),
         '/home': (context) => const HomeScreen(title: 'Kantin Ashima'),
         '/barang': (context) => const MenuScreen(),
         '/laporan': (context) => const LaporanScreen(),

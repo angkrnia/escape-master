@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'Invoice.dart';
 import '../models/menu_model.dart';
 import '../api/menu_service.dart';
+import '../helpers/format_angka.dart';
 
 class NewHome extends StatefulWidget {
   const NewHome({Key? key}) : super(key: key);
@@ -194,9 +198,37 @@ class _PaymentPageState extends State<PaymentPage> {
     super.dispose();
   }
 
-  void _submitPayment() {
+  Future<void> _submitPayment() async {
     int paymentAmount = int.tryParse(_paymentController.text) ?? 0;
     int changeAmount = paymentAmount - widget.totalPrice;
+    try {
+      final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/orders');
+      final headers = {'Content-Type': 'application/json'};
+      final body = {
+        'total_price': widget.totalPrice,
+        'total_payment': paymentAmount,
+        'menu': widget.selectedItems.keys
+            .map((item) =>
+                {'menu_id': item.id, 'quantity': widget.selectedItems[item]})
+            .toList(),
+      };
+      final response =
+          await http.post(uri, headers: headers, body: jsonEncode(body));
+
+      if (response.statusCode == 201) {
+        print('Success');
+        Fluttertoast.showToast(
+            msg: "Order berhasil ditambahkan",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white);
+      } else {
+        print('Failed');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
 
     Navigator.push(
       context,
@@ -257,7 +289,7 @@ class _PaymentPageState extends State<PaymentPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Total Harga', style: const TextStyle(fontSize: 16)),
-                Text('Rp. ${widget.totalPrice}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(formatRupiah(widget.totalPrice), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
           ),

@@ -98,17 +98,41 @@ class _BarangFormState extends State<BarangForm> {
   }
 
   Future<void> submitMenu() async {
-    final url = Uri.parse('https://calm-red-dove-fez.cyclic.app/menu');
-    final response = await http.post(url, body: {
-      'name': _menuNameController.text,
-      'price': _menuPriceController.text,
-      'category_id': _categoryId.toString(),
-    });
+    try {
+      final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/menu');
+      final body = {
+        'name': _menuNameController.text,
+        'price': _menuPriceController.text,
+        'category_id': _categoryId.toString(),
+      };
+      final response = await http.post(uri, body: json.encode(body), headers: {
+        'Content-Type': 'application/json',
+      });
 
-    if (response.statusCode == 201) {
-      print("berhasil");
-    } else {
-      print("gagal");
+      if (response.statusCode == 201) {
+        Fluttertoast.showToast(
+            msg: "Menu berhasil ditambahkan",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white);
+        Navigator.pushNamedAndRemoveUntil(context, '/barang', (route) => false);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Menu gagal ditambahkan",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.red,
+            textColor: Colors.white);
+      }
+    } catch (e) {
+      print('Error: $e');
+      Fluttertoast.showToast(
+          msg: "Menu gagal ditambahkan",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white);
     }
   }
 }

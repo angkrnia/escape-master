@@ -1,6 +1,8 @@
 // ignore_for_file: file_names, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 import '../models/menu_model.dart';
 import '../models/category_model.dart';
 import '../api/menu_service.dart';
@@ -67,7 +69,7 @@ class MenuScreenState extends State<MenuScreen> {
             TextButton(
               child: Text('Hapus'),
               onPressed: () {
-                // Tambahkan logika penghapusan item di sini
+                deleteMenu(id);
                 Navigator.of(context).pop();
               },
             ),
@@ -75,6 +77,28 @@ class MenuScreenState extends State<MenuScreen> {
         );
       },
     );
+  }
+
+  Future<void> deleteMenu(int id) async {
+    final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/menu/$id');
+    final headers = {'Content-Type': 'application/json'};
+    final response = await http.delete(uri, headers: headers);
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(
+          msg: "Menu berhasil dihapus",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white);
+      fetchDataMenu();
+    } else {
+      Fluttertoast.showToast(
+          msg: "Menu gagal dihapus",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white);
+    }
   }
 
   @override
@@ -87,77 +111,80 @@ class MenuScreenState extends State<MenuScreen> {
         appBar: AppBar(
           title: const Text("Menu Makanan"),
         ),
-        body: Column(
-          children: [
-            SizedBox(
-              height: 50,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _categories.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final category = _categories[index];
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: ChoiceChip(
-                          label: Text(category.name),
-                          selected: _selectedCategory == category.name,
-                          onSelected: (bool selected) {
-                            setState(() {
-                              _selectedCategory = selected ? category.name : '';
-                            });
-                          },
-                          selectedColor: Colors.blue,
-                          labelStyle: const TextStyle(color: Colors.white),
+        body: RefreshIndicator(
+          onRefresh: fetchDataMenu,
+          child: Column(
+            children: [
+              SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _categories.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final category = _categories[index];
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: ChoiceChip(
+                            label: Text(category.name),
+                            selected: _selectedCategory == category.name,
+                            onSelected: (bool selected) {
+                              setState(() {
+                                _selectedCategory = selected ? category.name : '';
+                              });
+                            },
+                            selectedColor: Colors.blue,
+                            labelStyle: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _daftarMenu.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final menu = _daftarMenu[index];
+        
+                    if (_selectedCategory.isNotEmpty &&
+                        menu.category != _selectedCategory) {
+                      return const SizedBox.shrink();
+                    }
+        
+                    return InkWell(
+                      onTap: () {
+                        // todo
+                      },
+                      child: Card(
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: ListTile(
+                                leading: const Icon(Icons.restaurant_menu),
+                                title: Text(menu.name),
+                                subtitle: Text(
+                                    '${menu.category} - ${formatRupiah(menu.price)}'),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                _showDeleteConfirmationDialog(menu.id);
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _daftarMenu.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final menu = _daftarMenu[index];
-
-                  if (_selectedCategory.isNotEmpty &&
-                      menu.category != _selectedCategory) {
-                    return const SizedBox.shrink();
-                  }
-
-                  return InkWell(
-                    onTap: () {
-                      // todo
-                    },
-                    child: Card(
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: ListTile(
-                              leading: const Icon(Icons.restaurant_menu),
-                              title: Text(menu.name),
-                              subtitle: Text(
-                                  '${menu.category} - ${formatRupiah(menu.price)}'),
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              _showDeleteConfirmationDialog(menu.id);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
         bottomNavigationBar: BottomAppBar(
           shape: const CircularNotchedRectangle(),
