@@ -21,7 +21,6 @@ class TransaksiScreen extends StatefulWidget {
 
 class _TransaksiScreenState extends State<TransaksiScreen> {
   List<Map<String, dynamic>> _daftarTransaksi = [];
-  List<Map<String, dynamic>> _listBarang = [];
 
   Future<void> getOrders() async {
     final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/orders');
@@ -62,101 +61,66 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
       appBar: AppBar(
         title: const Text("Daftar Transaksi"),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: DataTable(
-                  showCheckboxColumn: false,
-                  columnSpacing: 16.0,
-                  columns: const [
-                    DataColumn(
-                      label: Text('Invoice No'),
-                    ),
-                    DataColumn(
-                      label: Text('Kasir'),
-                    ),
-                    DataColumn(
-                      label: Text('Jam Transaksi'),
-                    ),
-                    DataColumn(
-                      label: Text('Total Harga'),
-                    ),
-                    DataColumn(
-                      label: Text('Bayar'),
-                    ),
-                    DataColumn(
-                      label: Text('Kembali'),
-                    ),
-                    DataColumn(
-                      label: Text('Aksi'),
-                    ),
-                  ],
-                  rows: _daftarTransaksi.map<DataRow>(
-                    (entry) {
-                      final dateTime = DateTime.parse(entry['order_date']);
-                      final formattedDate =
-                          '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(entry['id'].toString())),
-                          DataCell(Text(entry['created_by'].toString())),
-                          DataCell(Text(formattedDate)),
-                          DataCell(Text(formatRupiah(entry['total_price']))),
-                          DataCell(Text(formatRupiah(entry['total_payment']))),
-                          DataCell(Text(
-                              (entry['total_payment'] - entry['total_price'])
-                                  .toString())),
-                          DataCell(
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                setState(() {
-                                  _daftarTransaksi.remove(entry);
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                        onSelectChanged: (selected) {
-                          String namaKasir = entry['kasir'].toString();
-                          String time = entry['jam'].toString();
-                          int totalPrice = entry['total'];
-                          int paymentAmount = entry['bayar'];
-                          int changeAmount = paymentAmount - totalPrice;
-                          Menu menuItem = Menu(
-                            name: 'Nasi Goreng',
-                            price: 20000,
-                            category: 'Makanan',
-                            id: 1,
-                          );
-                          Map<Menu, int> selectedItems = {menuItem: 1};
+      body: ListView.builder(
+        itemCount: _daftarTransaksi.length,
+        itemBuilder: (context, index) {
+          final entry = _daftarTransaksi[index];
+          final dateTime = DateTime.parse(entry['order_date']);
+          final formattedDate =
+              '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => InvoicePage(
-                                namaKasir: namaKasir,
-                                time: time,
-                                totalPrice: totalPrice,
-                                paymentAmount: paymentAmount,
-                                changeAmount: changeAmount,
-                                selectedItems: selectedItems,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ).toList(),
-                ),
+          return Card(
+            child: ListTile(
+              title: Text('${entry['id']}'),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Kasir: ${entry['created_by']}'),
+                  Text('Jam Transaksi: $formattedDate'),
+                  Text('Total Harga: ${formatRupiah(entry['total_price'])}'),
+                  //Text('Bayar: ${formatRupiah(entry['total_payment'])}'),
+                  //Text('Kembali: ${entry['total_payment'] - entry['total_price']}'),
+                ],
               ),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  setState(() {
+                    _daftarTransaksi.removeAt(index);
+                  });
+                },
+              ),
+              onTap: () {
+                String namaKasir = entry['created_by'].toString();
+                String time = formattedDate;
+                int totalPrice = entry['total_price'];
+                int paymentAmount = entry['total_payment'];
+                int changeAmount = paymentAmount - totalPrice;
+                Menu menuItem = Menu(
+                  name: 'Nasi Goreng',
+                  price: 20000,
+                  category: 'Makanan',
+                  id: 1,
+                );
+                Map<Menu, int> selectedItems = {menuItem: 1};
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InvoicePage(
+                      namaKasir: namaKasir,
+                      time: time,
+                      totalPrice: totalPrice,
+                      paymentAmount: paymentAmount,
+                      changeAmount: changeAmount,
+                      selectedItems: selectedItems,
+                    ),
+                  ),
+                );
+              },
             ),
-          ),
-        ],
+          );
+        },
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),

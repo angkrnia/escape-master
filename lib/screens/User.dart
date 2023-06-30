@@ -13,73 +13,54 @@ class UserScreen extends StatefulWidget {
 class _UserScreenState extends State<UserScreen> {
   final List<User> _daftarUser = [
     User(id: 'admin', nama: 'Administrator', alamat: 'admin'),
-    User(id: 'unggul', nama: 'Unggul P', alamat: 'tangsel'),
-    User(id: 'angga', nama: 'Angga K', alamat: 'cisoka'),
+    User(id: 'unggul', nama: 'Unggul Prasetyo', alamat: 'tangsel'),
+    User(id: 'angga', nama: 'Angga Kurnia', alamat: 'cisoka'),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Daftar User"),
       ),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              showCheckboxColumn: false,
-              columnSpacing: 16.0, // Jarak antara kolom
-              columns: const [
-                DataColumn(
-                  label: Text('No.'),
-                ),
-                DataColumn(
-                  label: Text('User ID'),
-                ),
-                DataColumn(
-                  label: Text('Nama'),
-                ),
-                DataColumn(
-                  label: Text('Alamat'),
-                ),
-                DataColumn(
-                  label: Text('Aksi'),
-                ),
-              ],
-              rows: _daftarUser
-                  .asMap()
-                  .entries
-                  .map((entry) => DataRow(
-                      cells: [
-                        DataCell(Text('${entry.key + 1}')),
-                        DataCell(Text(entry.value.id)),
-                        DataCell(Text(entry.value.nama)),
-                        DataCell(Text(entry.value.alamat)),
-                        DataCell(IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            setState(() {
-                              _daftarUser.removeAt(entry.key);
-                            });
-                          },
-                        )),
-                      ],
-                      onSelectChanged: (selected) {
-                        // insert your navigation function here and use the selected value returned by the function
-                        //Navigator.pushNamed(context, '/home');
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => UserDetail(
-                          id: entry.value.id,
-                          nama: entry.value.nama,
-                          alamat: entry.value.alamat,
-                          )));
-                      }
+      body: ListView.builder(
+        itemCount: _daftarUser.length,
+        itemBuilder: (context, index) {
+          final user = _daftarUser[index];
+
+          return Card(
+            child: ListTile(
+              title: Text(user.nama),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('User ID: ${user.id}'),
+                  Text('Alamat: ${user.alamat}'),
+                  const SizedBox(width: 16),
+                ],
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  setState(() {
+                    _daftarUser.removeAt(index);
+                  });
+                },
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => UserDetail(
+                      id: user.id,
+                      nama: user.nama,
+                      alamat: user.alamat,
                     ),
-                  )
-                  .toList(),
+                  ),
+                );
+              },
             ),
-          ),
-        ],
+          );
+        },
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
