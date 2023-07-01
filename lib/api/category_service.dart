@@ -21,24 +21,6 @@ class CategoryService {
     }
   }
 
-  Future<Category> storeCategory(Category category) async {
-    try {
-      final response = await http.post(Uri.parse(url),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode(category.toJson()));
-      if (response.statusCode == 201) {
-        Category category = Category.fromJson(json.decode(response.body));
-        return category;
-      } else {
-        throw Exception("Error");
-      }
-    } catch (e) {
-      throw Exception(e.toString());
-    }
-  }
-
   Future<Category> deleteCategory(int id) async {
     try {
       final response = await http.delete(Uri.parse('$url/$id'));

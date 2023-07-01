@@ -28,7 +28,6 @@ class _BarangDetailState extends State<BarangDetail> {
           Text("Nama Menu : ${widget.Nama}"),
           Text("Kategori : ${widget.Kategori}"),
           Text("Harga : ${widget.Harga}")
-          
         ],
       ),
     );

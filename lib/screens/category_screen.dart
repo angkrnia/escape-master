@@ -36,19 +36,19 @@ class _CategoryScreenState extends State<CategoryScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Konfirmasi Penghapusan'),
-          content: Text('Anda yakin ingin menghapus item ini?'),
+          title: const Text('Konfirmasi Penghapusan'),
+          content: const Text('Anda yakin ingin menghapus item ini?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Batal'),
+              child: const Text('Batal'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Hapus'),
+              child: const Text('Hapus'),
               onPressed: () {
-                // Tambahkan logika penghapusan item di sini
+                // TODO DELETE
                 Navigator.of(context).pop();
               },
             ),
@@ -114,7 +114,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          Navigator.pushNamed(context, '/');
+          Navigator.pushNamed(context, '/new_category');
         },
       ),
     );
