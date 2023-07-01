@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:escape/screens/User_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -12,11 +11,10 @@ class UserForm extends StatefulWidget {
 }
 
 class _UserFormState extends State<UserForm> {
-  final _IdTextboxController = TextEditingController();
-  final _NamaTextboxController = TextEditingController();
-  final _AlamatTextboxController = TextEditingController();
-  final _PasswordTextboxController = TextEditingController();
-  XFile? _image;
+  final _fullnameTextboxController = TextEditingController();
+  final _usernameTextboxController = TextEditingController();
+  final _passwordTextboxController = TextEditingController();
+  bool _obsecureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +26,12 @@ class _UserFormState extends State<UserForm> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            _textboxId(),
+            _textboxFullname(),
+            const SizedBox(height: 14.0,),
+            _textboxUsername(),
+            const SizedBox(height: 14.0,),
             _textboxPassword(),
-            _textboxNama(),
-            _textboxAlamat(),
-            _tombolUploadFoto(),
+            const SizedBox(height: 14.0,),
             _tombolSimpan(),
           ],
         ),
@@ -40,110 +39,63 @@ class _UserFormState extends State<UserForm> {
     );
   }
 
-  _textboxId() {
-    return TextField(
-      decoration: const InputDecoration(
-          labelText: "ID", contentPadding: EdgeInsets.all(12)),
-      controller: _IdTextboxController,
-    );
-  }
-
   _textboxPassword() {
     return TextField(
-      obscureText: true,
-      decoration: const InputDecoration(
-          labelText: "Password", contentPadding: EdgeInsets.all(12)),
-      controller: _PasswordTextboxController,
+      obscureText: _obsecureText,
+      controller: _passwordTextboxController,
+      decoration: InputDecoration(
+        icon: const Icon(Icons.lock, size: 35),
+        labelText: 'Password',
+        border: const OutlineInputBorder(),
+        suffixIcon: IconButton(
+          onPressed: () {
+            setState(() {
+              _obsecureText = !_obsecureText;
+            });
+          },
+          icon: Icon(
+            _obsecureText ? Icons.visibility : Icons.visibility_off,
+          ),
+        ),
+      ),
     );
   }
 
-  _textboxNama() {
+  _textboxUsername() {
     return TextField(
+      keyboardType: TextInputType.text,
       decoration: const InputDecoration(
-          labelText: "Nama User", contentPadding: EdgeInsets.all(12)),
-      controller: _NamaTextboxController,
+        labelText: 'Username',
+        icon: Icon(Icons.person, size: 35),
+        border: OutlineInputBorder(),
+      ),
+      controller: _usernameTextboxController,
     );
   }
 
-  _textboxAlamat() {
+  _textboxFullname() {
     return TextField(
+      keyboardType: TextInputType.text,
       decoration: const InputDecoration(
-          labelText: "Alamat", contentPadding: EdgeInsets.all(12)),
-      keyboardType: TextInputType.number,
-      controller: _AlamatTextboxController,
+        labelText: 'Fullname',
+        icon: Icon(Icons.person, size: 35),
+        border: OutlineInputBorder(),
+      ),
+      controller: _fullnameTextboxController,
     );
   }
 
   _tombolSimpan() {
-    return ElevatedButton(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 35.0),
+      child: ElevatedButton(
         onPressed: () {
-          if (_IdTextboxController.text.isEmpty ||
-              _NamaTextboxController.text.isEmpty ||
-              _AlamatTextboxController.text.isEmpty) {
-            Fluttertoast.showToast(
-                msg: "Data belum lengkap!",
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.TOP,
-                backgroundColor: Colors.red,
-                textColor: Colors.white);
-            return;
-          }
-
-          if (_IdTextboxController.text.length < 3) {
-            Fluttertoast.showToast(
-                msg: "ID User minimal 3 karakter",
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.TOP,
-                backgroundColor: Colors.red,
-                textColor: Colors.white);
-            return;
-          }
-
-          String ID = _IdTextboxController.text;
-          String Nama = _NamaTextboxController.text;
-          String Alamat = _AlamatTextboxController.text;
-
-          // pindah ke halaman User Detail dan mengirim data
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => UserDetail(
-                    id: ID,
-                    nama: Nama,
-                    alamat: Alamat,
-                  )));
+          String fullname = _fullnameTextboxController.text;
+          String username = _usernameTextboxController.text;
+          String password = _passwordTextboxController.text;
         },
-        child: const Text('Simpan'));
-  }
-
-  _tombolUploadFoto() {
-    final _picker = ImagePicker();
-    XFile? _image;
-
-    void _getImage() async {
-      final pickedFile = await _picker.pickImage(
-          source: ImageSource.camera); // Mengambil gambar dari galeri
-      // final pickedFile = await _picker.pickImage(source: ImageSource.camera); // Mengambil gambar dari kamera
-      setState(() {
-        _image = pickedFile;
-      });
-    }
-
-    return Column(
-      children: [
-        ElevatedButton(
-          onPressed: _getImage,
-          child: Text('Gambar'),
-        ),
-        if (_image != null)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Image.file(File(_image!.path)),
-                Text('Foto yang sudah diupload'),
-              ],
-            ),
-          ),
-      ],
+        child: const Text('Simpan')
+      ),
     );
   }
 }

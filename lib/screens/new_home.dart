@@ -216,7 +216,6 @@ class _PaymentPageState extends State<PaymentPage> {
           await http.post(uri, headers: headers, body: jsonEncode(body));
 
       if (response.statusCode == 201) {
-        print('Success');
         Fluttertoast.showToast(
             msg: "Order berhasil ditambahkan",
             toastLength: Toast.LENGTH_LONG,
@@ -301,8 +300,8 @@ class _PaymentPageState extends State<PaymentPage> {
               children: [
                 Text('Bayar', style: const TextStyle( fontSize: 16)),
                 Container(
-                  height: 16,
-                  width: 60,
+                  height: 18,
+                  width: 70,
                   child: TextField(
                     controller: _paymentController,
                     keyboardType: TextInputType.number,

@@ -15,6 +15,7 @@ import 'screens/User_form.dart';
 import 'screens/category_screen.dart';
 import 'screens/info_screen.dart';
 import 'screens/new_home.dart';
+import 'screens/category/new_category.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -41,6 +42,7 @@ class App extends StatelessWidget {
         '/userform': (context) => const UserForm(),
         '/category': (context) => const CategoryScreen(),
         '/info': (context) => const InfoScreen(),
+        '/new_category': (context) => const NewCategory(),
       },
     );
   }

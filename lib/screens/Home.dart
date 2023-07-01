@@ -23,9 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        print(response.body);
+        // print(response.body);
         final js = json.decode(response.body);
-        final result = js['data']['saldo_today'];
+        final result = js['data']['saldo_today'] ?? 0;
         if (result != null) {
           setState(() {
             saldo = int.tryParse(result.toString()) ?? 0;
@@ -62,12 +62,12 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              SizedBox(height: 14.0),
-              Text(
+              const SizedBox(height: 14.0),
+              const Text(
                 'Selamat Datang Administrator',
                 style: TextStyle(
                   fontSize: 14.0,
-                  //fontWeight: FontWeight.bold,
+                  // fontWeight: FontWeight.bold
                 ),
               ),
               SizedBox(height: 8.0),
@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _selectTab(String index) {
     if (index == 'home') {
-      //Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      getSaldo();
     } else if (index == 'logout') {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }

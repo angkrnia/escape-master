@@ -6,8 +6,8 @@ import '../models/TransaksiModel.dart';
 import '../models/TransaksiBarangModel.dart';
 import 'Invoice.dart';
 import 'new_home.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../models/menu_model.dart';
-import '../api/menu_service.dart';
 import 'package:http/http.dart' as http;
 import '../helpers/format_angka.dart';
 import 'dart:convert';
@@ -29,7 +29,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         final result = jsonResponse['data']['orders'];
-        print(result);
+        // print(result);
         if (result != null) {
           setState(() {
             _daftarTransaksi = List<Map<String, dynamic>>.from(result);
@@ -41,6 +41,78 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
     } catch (e) {
       print('Error fetching data: $e');
     }
+  }
+
+  void _showDeleteConfirmationDialog(String id, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Konfirmasi Penghapusan'),
+          content: Text('Anda yakin ingin menghapus item ini?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Batal'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Hapus'),
+              onPressed: () {
+                deleteTransaksi(id, index);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteTransaksi(String id, int index) async {
+    final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/orders/$id');
+    try {
+      final response = await http.delete(uri);
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        final result = jsonResponse['status'];
+        if (result == 'success') {
+          Fluttertoast.showToast(
+              msg: "Order berhasil dihapus.",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.green,
+              textColor: Colors.white);
+          setState(() {
+            _daftarTransaksi.removeAt(index);
+          });
+        } else {
+          throw Exception("API response does not contain 'orders' data");
+        }
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  Future<dynamic> getDetailOrderById(String id) async {
+    final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/orders/$id');
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        final result = jsonResponse['data'];
+        if (result != null) {
+          return result;
+        } else {
+          throw Exception("API response does not contain 'order' data");
+        }
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+    return null;
   }
 
   @override
@@ -65,9 +137,9 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
         itemCount: _daftarTransaksi.length,
         itemBuilder: (context, index) {
           final entry = _daftarTransaksi[index];
-          final dateTime = DateTime.parse(entry['order_date']);
-          final formattedDate =
-              '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
+          final dateTime = DateTime.parse(entry['order_date']).toUtc();
+          final gmtDateTime = dateTime.add(const Duration(hours: 7));
+          final formattedDate = gmtDateTime.toString();
 
           return Card(
             child: ListTile(
@@ -85,38 +157,45 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
               trailing: IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () {
-                  setState(() {
-                    _daftarTransaksi.removeAt(index);
-                  });
+                  _showDeleteConfirmationDialog(entry['id'], index);
                 },
               ),
               onTap: () {
-                String namaKasir = entry['created_by'].toString();
-                String time = formattedDate;
-                int totalPrice = entry['total_price'];
-                int paymentAmount = entry['total_payment'];
-                int changeAmount = paymentAmount - totalPrice;
-                Menu menuItem = Menu(
-                  name: 'Nasi Goreng',
-                  price: 20000,
-                  category: 'Makanan',
-                  id: 1,
-                );
-                Map<Menu, int> selectedItems = {menuItem: 1};
+                var detailOrder = getDetailOrderById(entry['id']);
+                detailOrder.then((value) {
+                  String namaKasir = value['cashier'];
+                  String time = value['order_date'];
+                  int totalPrice = value['total_price'];
+                  int paymentAmount = value['total_payment'];
+                  int changeAmount = paymentAmount - totalPrice;
+                  List<dynamic> selectedItems = value['menu'];
+                  Map<Menu, int> convertedItems = {};
+                  for (dynamic item in selectedItems) {
+                    Menu menu = Menu(
+                      id: item['menu_id'],
+                      name: item['name'],
+                      price: item['total_price'],
+                      category: item['category'],
+                    );
+                    convertedItems[menu] = convertedItems.containsKey(menu)
+                        ? convertedItems[menu]! + 1
+                        : 1;
+                  }
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InvoicePage(
-                      namaKasir: namaKasir,
-                      time: time,
-                      totalPrice: totalPrice,
-                      paymentAmount: paymentAmount,
-                      changeAmount: changeAmount,
-                      selectedItems: selectedItems,
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => InvoicePage(
+                        namaKasir: namaKasir,
+                        time: time,
+                        totalPrice: totalPrice,
+                        paymentAmount: paymentAmount,
+                        changeAmount: changeAmount,
+                        selectedItems: convertedItems,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                });
               },
             ),
           );
