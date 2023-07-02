@@ -1,12 +1,11 @@
-import 'dart:io';
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:escape/models/category_model.dart';
-import '../api/category_service.dart';
-import 'package:escape/screens/Barang_detail.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:escape/models/category_model.dart';
+import '../../api/category_service.dart';
 
 class BarangForm extends StatefulWidget {
   const BarangForm({Key? key}) : super(key: key);
@@ -17,8 +16,8 @@ class BarangForm extends StatefulWidget {
 
 class _BarangFormState extends State<BarangForm> {
   List<Category> _categories = [];
-  TextEditingController _menuNameController = TextEditingController();
-  TextEditingController _menuPriceController = TextEditingController();
+  final TextEditingController _menuNameController = TextEditingController();
+  final TextEditingController _menuPriceController = TextEditingController();
   int _categoryId = 0;
 
   @override

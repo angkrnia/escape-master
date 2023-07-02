@@ -1,16 +1,12 @@
 // ignore_for_file: file_names
 
-import 'package:escape/models/TransaksiModel.dart';
 import 'package:flutter/material.dart';
-import '../models/TransaksiModel.dart';
-import '../models/TransaksiBarangModel.dart';
-import 'Invoice.dart';
-import 'new_home.dart';
+import '../invoice/invoice.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../models/menu_model.dart';
+import '../../models/menu_model.dart';
 import 'package:http/http.dart' as http;
-import '../helpers/format_angka.dart';
 import 'dart:convert';
+import '../../helpers/format_angka.dart';
 
 class TransaksiScreen extends StatefulWidget {
   const TransaksiScreen({super.key});
@@ -23,8 +19,8 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
   List<Map<String, dynamic>> _daftarTransaksi = [];
 
   Future<void> getOrders() async {
-    final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/orders');
     try {
+      final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/orders');
       final response = await http.get(uri);
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -39,7 +35,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
         }
       }
     } catch (e) {
-      print('Error fetching data: $e');
+      print('Error fetching data orders: $e');
     }
   }
 
@@ -110,7 +106,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
         }
       }
     } catch (e) {
-      print('Error fetching data: $e');
+      print('Error fetching data transaksi: $e');
     }
     return null;
   }
@@ -150,8 +146,6 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
                   Text('Kasir: ${entry['created_by']}'),
                   Text('Jam Transaksi: $formattedDate'),
                   Text('Total Harga: ${formatRupiah(entry['total_price'])}'),
-                  //Text('Bayar: ${formatRupiah(entry['total_payment'])}'),
-                  //Text('Kembali: ${entry['total_payment'] - entry['total_price']}'),
                 ],
               ),
               trailing: IconButton(

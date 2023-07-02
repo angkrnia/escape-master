@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/category_model.dart';
-import '../api/category_service.dart';
+import '../../models/category_model.dart';
+import '../../api/category_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -11,7 +12,6 @@ class CategoryScreen extends StatefulWidget {
 
 class _CategoryScreenState extends State<CategoryScreen> {
   List<Category> _categories = [];
-  bool _isDeleting = false;
 
   @override
   void initState() {
@@ -27,11 +27,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
         _categories = categoryList;
       });
     } catch (e) {
-      print('Error fetching data: $e');
+      print('Error fetching data category: $e');
     }
   }
 
-  void _showDeleteConfirmationDialog() {
+  void _showDeleteConfirmationDialog(int id, int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -48,7 +48,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             TextButton(
               child: const Text('Hapus'),
               onPressed: () {
-                // TODO DELETE
+                deleteCategoryHandler(id, index);
                 Navigator.of(context).pop();
               },
             ),
@@ -58,10 +58,33 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
+  Future<void> deleteCategoryHandler(int id, int index) async {
+    try {
+      CategoryService categoryService = CategoryService();
+      await categoryService.deleteCategory(id);
+      setState(() {
+        fetchData();
+      });
+      Fluttertoast.showToast(
+          msg: "Category berhasil dihapus.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white);
+    } catch (e) {
+      print('Error when deletion category: $e');
+      Fluttertoast.showToast(
+        msg: "Error fetching data: $e",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_categories.isEmpty) {
-      // Tampilkan widget atau indikator loading saat data masih diambil
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -78,12 +101,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
             leading: const Icon(Icons.category_outlined),
             title: Text(category.name),
             trailing: IconButton(
-              icon: Icon(Icons.delete), // Ikon hapus di sebelah kanan
+              icon: Icon(Icons.delete),
               onPressed: () {
-                setState(() {
-                  _isDeleting = true;
-                });
-                _showDeleteConfirmationDialog();
+                _showDeleteConfirmationDialog(category.id, index);
               },
             ),
           );

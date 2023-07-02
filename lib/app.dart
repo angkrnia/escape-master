@@ -1,21 +1,18 @@
 // ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
-import 'screens/Home.dart';
-import 'screens/menu_screen.dart';
-import 'screens/Laporan.dart';
-import 'screens/Settings.dart';
-import 'screens/FormTambah.dart';
-import 'screens/Invoice.dart';
+import 'screens/home.dart';
 import 'screens/login.dart';
-import 'screens/Transaksi.dart';
-import 'screens/User.dart';
-import 'screens/Barang_form.dart';
-import 'screens/User_form.dart';
-import 'screens/category_screen.dart';
+import 'screens/settings.dart';
 import 'screens/info_screen.dart';
-import 'screens/new_home.dart';
+import 'screens/menu/menu_screen.dart';
+import 'screens/laporan/laporan_screen.dart';
+import 'screens/transaksi/transaksi.dart';
+import 'screens/users/user_screen.dart';
+import 'screens/users/user_form.dart';
+import 'screens/order/form_order.dart';
 import 'screens/category/new_category.dart';
+import 'screens/menu/menu_form.dart';
+import 'screens/category/category_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -25,7 +22,6 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Kantin Ashima',
       initialRoute: '/home',
-      // home: const NewHome(),
       home: const HomeScreen(title: 'Kantin Ashima'),
       routes: {
         '/home2': (context) => const NewHome(),
@@ -33,8 +29,6 @@ class App extends StatelessWidget {
         '/barang': (context) => const MenuScreen(),
         '/laporan': (context) => const LaporanScreen(),
         '/settings': (context) => const SettingsScreen(),
-        // '/create': (context) => const PenjualanForm(),
-        //'/invoice': (context) => const InvoiceScreen(),
         '/login': (context) => const Login(),
         '/transaksi': (context) => const TransaksiScreen(),
         '/user': (context) => const UserScreen(),

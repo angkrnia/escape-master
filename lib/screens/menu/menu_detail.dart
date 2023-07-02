@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 class BarangDetail extends StatefulWidget {
-  final String? Nama;
-  final String? Kategori;
-  final int? Harga;
+  final String? nama;
+  final String? kategori;
+  final int? harga;
 
   const BarangDetail({
     Key? key,
-    this.Nama,
-    this.Kategori,
-    this.Harga,
+    this.nama,
+    this.kategori,
+    this.harga,
   }) : super(key: key);
 
   @override
@@ -25,9 +25,9 @@ class _BarangDetailState extends State<BarangDetail> {
       ),
       body: Column(
         children: [
-          Text("Nama Menu : ${widget.Nama}"),
-          Text("Kategori : ${widget.Kategori}"),
-          Text("Harga : ${widget.Harga}")
+          Text("Nama Menu : ${widget.nama}"),
+          Text("Kategori : ${widget.kategori}"),
+          Text("Harga : ${widget.harga}")
         ],
       ),
     );

@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
+import '../../models/menu_model.dart';
+import '../../api/menu_service.dart';
+import 'order_payment.dart';
 
 class NewHome extends StatefulWidget {
-  const NewHome({super.key});
+  const NewHome({Key? key}) : super(key: key);
 
   @override
   State<NewHome> createState() => _NewHomeState();
 }
 
 class _NewHomeState extends State<NewHome> {
-  final List<MenuItem> _menuItems = [
-    MenuItem(name: 'Nasi Goreng', price: 20000),
-    MenuItem(name: 'Mie Goreng', price: 18000),
-    MenuItem(name: 'Ayam Bakar', price: 25000),
-    MenuItem(name: 'Sate Ayam', price: 15000),
-    MenuItem(name: 'Ikan Bakar', price: 22000),
-    MenuItem(name: 'Soto Ayam', price: 12000),
-    MenuItem(name: 'Bakso', price: 10000),
-  ];
+  List<Menu> _menuItems = [];
 
-  final Map<MenuItem, int> _selectedItems = {};
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
-  List<MenuItem> _filteredMenuItems = [];
+  Future<void> fetchData() async {
+    try {
+      MenuService menuService = MenuService();
+      List<Menu> menuList = await menuService.getMenu();
+      setState(() {
+        _menuItems = menuList;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  final Map<Menu, int> _selectedItems = {};
+
+  List<Menu> _filteredMenuItems = [];
 
   void _resetFilter() {
     setState(() {
@@ -29,7 +42,7 @@ class _NewHomeState extends State<NewHome> {
     });
   }
 
-  List<MenuItem> _searchMenuItems(String query) {
+  List<Menu> _searchMenuItems(String query) {
     return _filteredMenuItems
         .where((item) => item.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
@@ -37,7 +50,7 @@ class _NewHomeState extends State<NewHome> {
 
   int _totalPrice = 0;
 
-  void _addToCart(MenuItem item) {
+  void _addToCart(Menu item) {
     setState(() {
       if (_selectedItems.containsKey(item)) {
         _selectedItems[item] = _selectedItems[item]! + 1;
@@ -48,7 +61,7 @@ class _NewHomeState extends State<NewHome> {
     });
   }
 
-  void _removeFromCart(MenuItem item) {
+  void _removeFromCart(Menu item) {
     setState(() {
       if (_selectedItems.containsKey(item)) {
         if (_selectedItems[item] == 1) {
@@ -62,21 +75,21 @@ class _NewHomeState extends State<NewHome> {
   }
 
   void _navigateToPaymentPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => PaymentPage(totalPrice: _totalPrice)),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _filteredMenuItems.addAll(_menuItems);
-  }
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => PaymentPage(totalPrice: _totalPrice, selectedItems: _selectedItems),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
+
+    if(_menuItems.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Restaurant Menu'),
@@ -113,10 +126,11 @@ class _NewHomeState extends State<NewHome> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _filteredMenuItems.length,
+            child: ListView.separated(
+              itemCount: _menuItems.length,
+              separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
-                MenuItem item = _filteredMenuItems[index];
+                Menu item = _menuItems[index];
                 int quantity = _selectedItems.containsKey(item)
                     ? _selectedItems[item]!
                     : 0;
@@ -157,27 +171,3 @@ class _NewHomeState extends State<NewHome> {
   }
 }
 
-class MenuItem {
-  final String name;
-  final int price;
-
-  MenuItem({required this.name, required this.price});
-}
-
-class PaymentPage extends StatelessWidget {
-  final int totalPrice;
-
-  const PaymentPage({Key? key, required this.totalPrice}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment'),
-      ),
-      body: Center(
-        child: Text('Total Price: \$ $totalPrice'),
-      ),
-    );
-  }
-}

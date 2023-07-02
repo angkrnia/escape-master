@@ -1,11 +1,11 @@
 {
-    "name": "escape",
-    "short_name": "escape",
+    "name": "Kantin Ashima",
+    "short_name": "Kantin Ashima",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Aplikasi Kasir Kantin Ashima",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
@@ -15,7 +15,7 @@
             "type": "image/png"
         },
         {
-            "src": "icons/Icon-512.png",
+            "src": "icons/logo.png",
             "sizes": "512x512",
             "type": "image/png"
         },

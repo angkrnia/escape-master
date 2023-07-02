@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import '../models/menu_model.dart';
-import '../models/category_model.dart';
-import '../api/menu_service.dart';
-import '../api/category_service.dart';
-import '../helpers/format_angka.dart';
+import '../../helpers/format_angka.dart';
+import '../../models/menu_model.dart';
+import '../../models/category_model.dart';
+import '../../api/menu_service.dart';
+import '../../api/category_service.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -104,8 +104,7 @@ class MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     if (_daftarMenu.isEmpty) {
-      // Tampilkan widget atau indikator loading saat data masih diambil
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     } else {
       return Scaffold(
         appBar: AppBar(
