@@ -55,6 +55,7 @@ class _PaymentPageState extends State<PaymentPage> {
             .map((item) =>
                 {'menu_id': item.id, 'quantity': widget.selectedItems[item]})
             .toList(),
+        'created_by' : 'Administrator',
       };
       final response =
           await http.post(uri, headers: headers, body: jsonEncode(body));
@@ -67,16 +68,18 @@ class _PaymentPageState extends State<PaymentPage> {
             backgroundColor: Colors.green,
             textColor: Colors.white);
       } else {
+        String eror = response.body;
         Fluttertoast.showToast(
             msg: "Order gagal ditambahkan",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.TOP,
             backgroundColor: Colors.red[900],
             textColor: Colors.white);
+            print('Error: $eror');
       }
     } catch (e) {
       Fluttertoast.showToast(
-          msg: "Order gagal ditambahkan",
+          msg: "Order gagal ditambahkan $e",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.TOP,
           backgroundColor: Colors.red[900],
