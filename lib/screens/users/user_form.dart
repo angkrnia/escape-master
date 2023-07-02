@@ -100,6 +100,7 @@ class _UserFormState extends State<UserForm> {
               msg: "Mohon isi semua field",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.CENTER,
+              backgroundColor: const Color.fromARGB(255, 215, 3, 3),
             );
             return;
           }
@@ -121,7 +122,7 @@ class _UserFormState extends State<UserForm> {
           'password': _passwordTextboxController.text,
         },
       );
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         final js = json.decode(response.body);
         final result = js['data']['id'] ?? 0;
         if (result != null) {
@@ -133,13 +134,28 @@ class _UserFormState extends State<UserForm> {
           Navigator.pushNamedAndRemoveUntil(
               context, '/user', (route) => false);
         } else {
-          throw Exception("API response does not contain 'id' data");
+          Fluttertoast.showToast(
+            msg: "User gagal ditambahkan",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER, 
+            backgroundColor: const Color.fromARGB(255, 215, 3, 3),
+          );
         }
       } else {
-        throw Exception(
-            "Error hit API status code not 200: ${response.statusCode}");
+        final js = json.decode(response.body);
+        final result = js['message'];
+        Fluttertoast.showToast(
+          msg: result.toString(),
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        );
       }
     } catch (e) {
+       Fluttertoast.showToast(
+        msg: "gagal menambahkan user baru. (${e.toString()})",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
       throw Exception("Error hit API: ${e.toString()}");
     }
   }
