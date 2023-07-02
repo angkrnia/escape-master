@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 //import 'package:escape/screens/TransaksiScreen.dart'; // Import halaman TransaksiScreen
 //import 'package:escape/helpers/export_data.dart'; // Import fungsi untuk ekspor data
@@ -28,7 +30,7 @@ class _LaporanScreenState extends State<LaporanScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Tanggal Awal',
                     style: TextStyle(fontSize: 16),
                   ),
@@ -39,7 +41,7 @@ class _LaporanScreenState extends State<LaporanScreen> {
                     child: Text(_formatDate(_startDate)),
                   ),
                   const SizedBox(height: 16),
-                  Text(
+                  const Text(
                     'Tanggal Akhir',
                     style: TextStyle(fontSize: 16),
                   ),

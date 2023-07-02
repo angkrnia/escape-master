@@ -1,7 +1,9 @@
-import 'dart:io';
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class UserForm extends StatefulWidget {
   const UserForm({Key? key}) : super(key: key);
@@ -93,9 +95,52 @@ class _UserFormState extends State<UserForm> {
           String fullname = _fullnameTextboxController.text;
           String username = _usernameTextboxController.text;
           String password = _passwordTextboxController.text;
+          if (fullname.isEmpty || username.isEmpty || password.isEmpty) {
+            Fluttertoast.showToast(
+              msg: "Mohon isi semua field",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+            );
+            return;
+          }
+          submitUser();
         },
         child: const Text('Simpan')
       ),
     );
+  }
+
+  Future<void> submitUser() async {
+    try {
+      final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/users');
+      final response = await http.post(
+        uri,
+        body: {
+          'fullname': _fullnameTextboxController.text,
+          'username': _usernameTextboxController.text,
+          'password': _passwordTextboxController.text,
+        },
+      );
+      if (response.statusCode == 200) {
+        final js = json.decode(response.body);
+        final result = js['data']['id'] ?? 0;
+        if (result != null) {
+          Fluttertoast.showToast(
+            msg: "User berhasil ditambahkan",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+          );
+          Navigator.pushNamedAndRemoveUntil(
+              context, '/user', (route) => false);
+        } else {
+          throw Exception("API response does not contain 'id' data");
+        }
+      } else {
+        throw Exception(
+            "Error hit API status code not 200: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error hit API: ${e.toString()}");
+    }
   }
 }

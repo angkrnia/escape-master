@@ -1,7 +1,6 @@
-// ignore_for_file: file_names
-import 'package:escape/screens/User_detail.dart';
+import './user_detail.dart';
 import 'package:flutter/material.dart';
-import '../models/UserModel.dart';
+import '../../models/UserModel.dart';
 
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});

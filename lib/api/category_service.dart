@@ -3,11 +3,11 @@ import 'package:http/http.dart' as http;
 import '../models/category_model.dart';
 
 class CategoryService {
-  String url = 'https://calm-red-dove-fez.cyclic.app/categories';
+  String uri = 'https://calm-red-dove-fez.cyclic.app/categories';
 
   Future<List<Category>> getMenu() async {
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await http.get(Uri.parse(uri));
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         List<Category> categoriesList = List<Category>.from(
@@ -21,15 +21,10 @@ class CategoryService {
     }
   }
 
-  Future<Category> deleteCategory(int id) async {
+  Future<bool> deleteCategory(int id) async {
     try {
-      final response = await http.delete(Uri.parse('$url/$id'));
-      if (response.statusCode == 200) {
-        Category category = Category.fromJson(json.decode(response.body));
-        return category;
-      } else {
-        throw Exception("Error");
-      }
+      final response = await http.delete(Uri.parse('$uri/$id'));
+      return response.statusCode == 200;
     } catch (e) {
       throw Exception(e.toString());
     }
