@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 class UserDetail extends StatefulWidget {
-  final String? id;
-  final String? nama;
-  final String? alamat;
+  final int? id;
+  final String? fullname;
+  final String? username;
 
   const UserDetail({
     Key? key,
     this.id,
-    this.nama,
-    this.alamat,
+    this.fullname,
+    this.username,
   }) : super(key: key);
 
   @override
@@ -23,13 +23,20 @@ class _UserDetailState extends State<UserDetail> {
       appBar: AppBar(
         title: const Text('Detail User'),
       ),
-      body: Column(
-        children: [
-          Text("Nama User : ${widget.id}"),
-          Text("Merk : ${widget.nama}"),
-          Text("Harga User : ${widget.alamat}")
-          
-        ],
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.person,
+              size: 50,
+            ),
+            const SizedBox(height: 10),
+            Text("Id User : ${widget.id}"),
+            Text("Fullname : ${widget.fullname}"),
+            Text("Username : ${widget.username}")
+          ],
+        ),
       ),
     );
   }

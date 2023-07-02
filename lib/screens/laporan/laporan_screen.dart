@@ -1,8 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api
-
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-//import 'package:escape/screens/TransaksiScreen.dart'; // Import halaman TransaksiScreen
-//import 'package:escape/helpers/export_data.dart'; // Import fungsi untuk ekspor data
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../helpers/format_angka.dart';
 
 class LaporanScreen extends StatefulWidget {
   const LaporanScreen({Key? key}) : super(key: key);
@@ -14,6 +15,10 @@ class LaporanScreen extends StatefulWidget {
 class _LaporanScreenState extends State<LaporanScreen> {
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now();
+
+  List<Map<String, dynamic>> _daftarOrders = [];
+  bool isBtnLoading = false;
+  int totalPendapatan = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +65,36 @@ class _LaporanScreenState extends State<LaporanScreen> {
             onPressed: () {
               _cetakLaporan();
             },
-            child: const Text('Cetak'),
+            child: const Text('Lihat Laporan'),
           ),
+          const SizedBox(height: 16),
+          if (_daftarOrders.isNotEmpty)
+            Text(
+              'Total Pendapatan: ${formatRupiah(totalPendapatan)}',
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Order id')),
+                  DataColumn(label: Text('Tanggal')),
+                  DataColumn(label: Text('Total')),
+                  DataColumn(label: Text('Cashier')),
+                ],
+                rows: _daftarOrders.isNotEmpty
+                  ? _daftarOrders.map((order) {
+                      return DataRow(cells: [
+                        DataCell(Text(order['order_id'].toString())),
+                        DataCell(Text(formatDateTime(order['order_date'].toString()))),
+                        DataCell(Text(formatRupiah(order['total_price']))),
+                        DataCell(Text(order['cashier'].toString())),
+                      ]);
+                    }).toList()
+                  : [],
+              ),
+            )
         ],
       ),
     );
@@ -95,13 +128,39 @@ class _LaporanScreenState extends State<LaporanScreen> {
     }
   }
 
-  String _formatDate(DateTime dateTime) {
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+  String formatDateTime(String dateTimeString) {
+    final dateTime = DateTime.parse(dateTimeString);
+    final formatter = DateFormat('dd MMMM yyyy HH:mm:ss');
+    return formatter.format(dateTime);
   }
 
-  void _cetakLaporan() {
-    // Ekspor data transaksi menggunakan fungsi exportData yang ada di export_data.dart
-    //final List<Map<String, dynamic>> data = TransaksiScreen().getTransaksiData();
-    //exportData(data);
+  String _formatDate(DateTime dateTime) {
+    return '${dateTime.year}-${dateTime.month}-${dateTime.day}';
+  }
+
+  String addOneDay(String date) {
+    final dateTime = DateTime.parse(date);
+    final newDateTime = dateTime.add(const Duration(days: 1));
+    return _formatDate(newDateTime);
+  }
+
+  _cetakLaporan() {
+    generateLaporan(_formatDate(_startDate), addOneDay(_endDate.toString()));
+  }
+
+  Future<void> generateLaporan(String from, String to) async {
+    try {
+      final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/laporan/range?from=$from&to=$to');
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        setState(() {
+          _daftarOrders = List<Map<String, dynamic>>.from(jsonResponse['data']['laporan']);
+          totalPendapatan = jsonResponse['data']['total_pendapatan'];
+        });
+      }
+    } catch (e) {
+      print('Error fetching data laporan: $e');
+    }
   }
 }

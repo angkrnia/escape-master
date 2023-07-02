@@ -22,10 +22,8 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage> {
   final TextEditingController _paymentController = TextEditingController();
-  String adminName =
-      'Administrator'; // Ganti dengan nama admin sesuai kebutuhan
-  String dateTime = DateFormat('dd MMM yyyy, HH:mm')
-      .format(DateTime.now()); // Format tanggal + jam sesuai kebutuhan
+  String adminName = 'Administrator';
+  String dateTime = DateFormat('dd MMM yyyy, HH:mm').format(DateTime.now());
 
   @override
   void dispose() {
@@ -36,6 +34,17 @@ class _PaymentPageState extends State<PaymentPage> {
   Future<void> _submitPayment() async {
     int paymentAmount = int.tryParse(_paymentController.text) ?? 0;
     int changeAmount = paymentAmount - widget.totalPrice;
+
+    if(paymentAmount < widget.totalPrice) {
+      Fluttertoast.showToast(
+          msg: "Jumlah pembayaran kurang",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red[900],
+          textColor: Colors.white);
+      return;
+    }
+
     try {
       final uri = Uri.parse('https://calm-red-dove-fez.cyclic.app/orders');
       final headers = {'Content-Type': 'application/json'};
@@ -58,10 +67,22 @@ class _PaymentPageState extends State<PaymentPage> {
             backgroundColor: Colors.green,
             textColor: Colors.white);
       } else {
-        print('Failed');
+        Fluttertoast.showToast(
+            msg: "Order gagal ditambahkan",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.red[900],
+            textColor: Colors.white);
       }
     } catch (e) {
+      Fluttertoast.showToast(
+          msg: "Order gagal ditambahkan",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red[900],
+          textColor: Colors.white);
       print('Error: $e');
+      return;
     }
 
     Navigator.push(
